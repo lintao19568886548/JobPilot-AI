@@ -1,0 +1,139 @@
+server:
+  port: ${SERVER_PORT:8088}
+  address: ${SERVER_ADDRESS:127.0.0.1}
+  shutdown: graceful
+
+spring:
+  application:
+    name: jobpilot-backend
+  datasource:
+    url: jdbc:mysql://${MYSQL_HOST:127.0.0.1}:${MYSQL_PORT:3306}/${MYSQL_DATABASE:jobpilot}?useUnicode=true&characterEncoding=utf8&serverTimezone=UTC&useSSL=false&allowPublicKeyRetrieval=true
+    username: ${MYSQL_USERNAME:jobpilot}
+    password: ${MYSQL_PASSWORD}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 2
+      connection-timeout: 10000
+  data:
+    redis:
+      host: ${REDIS_HOST:127.0.0.1}
+      port: ${REDIS_PORT:6379}
+      timeout: 2s
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    validate-on-migrate: true
+    clean-disabled: true
+  jackson:
+    default-property-inclusion: non_null
+
+mybatis-plus:
+  configuration:
+    map-underscore-to-camel-case: true
+    log-impl: org.apache.ibatis.logging.slf4j.Slf4jImpl
+  global-config:
+    banner: false
+    db-config:
+      id-type: auto
+      logic-delete-field: deletedAt
+      logic-delete-value: now()
+      logic-not-delete-value: "null"
+
+management:
+  tracing:
+    sampling:
+      probability: ${OTEL_TRACES_SAMPLER_PROBABILITY:0.10}
+    export:
+      otlp:
+        enabled: ${OTEL_EXPORTER_OTLP_ENABLED:false}
+  opentelemetry:
+    tracing:
+      export:
+        otlp:
+          endpoint: ${OTEL_EXPORTER_OTLP_ENDPOINT:http://127.0.0.1:4318/v1/traces}
+  metrics:
+    tags:
+      application: ${spring.application.name}
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+  endpoint:
+    health:
+      show-details: when_authorized
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+    # Keep Springdoc's resource lookup aligned with the explicitly patched WebJar.
+    version: ${SWAGGER_UI_VERSION:5.32.14}
+    persist-authorization: false
+  api-docs:
+    path: /v3/api-docs
+
+jobpilot:
+  security:
+    jwt-secret: ${JWT_SECRET}
+    access-expiration-seconds: ${JWT_ACCESS_EXPIRATION:900}
+    refresh-expiration-seconds: ${JWT_REFRESH_EXPIRATION:604800}
+    issuer: jobpilot-ai
+  bootstrap:
+    enabled: ${BOOTSTRAP_USER_ENABLED:false}
+    username: ${BOOTSTRAP_USER_USERNAME:}
+    email: ${BOOTSTRAP_USER_EMAIL:}
+    password: ${BOOTSTRAP_USER_PASSWORD:}
+    display-name: ${BOOTSTRAP_USER_DISPLAY_NAME:Local User}
+  cors:
+    allowed-origins: ${FRONTEND_ORIGINS:http://localhost:5173}
+    extension-allowed-origin-patterns: ${EXTENSION_ORIGIN_PATTERNS:chrome-extension://*}
+  ai-service:
+    base-url: ${AI_SERVICE_BASE_URL:http://127.0.0.1:8010}
+    internal-token: ${AI_SERVICE_INTERNAL_TOKEN:}
+    connect-timeout-seconds: ${AI_SERVICE_CONNECT_TIMEOUT:3}
+    read-timeout-seconds: ${AI_SERVICE_READ_TIMEOUT:20}
+  matching:
+    read-timeout-seconds: ${MATCHING_AI_READ_TIMEOUT_SECONDS:600}
+    poll-interval-ms: ${MATCHING_POLL_INTERVAL_MS:1000}
+    max-attempts: ${MATCHING_MAX_ATTEMPTS:3}
+    initial-backoff-seconds: ${MATCHING_INITIAL_BACKOFF_SECONDS:2}
+    worker-id: ${MATCHING_WORKER_ID:jobpilot-local-worker}
+  recommendation:
+    batch-max-size: ${RECOMMENDATION_BATCH_MAX_SIZE:100}
+    batch-poll-interval-ms: ${RECOMMENDATION_BATCH_POLL_INTERVAL_MS:1000}
+    analytics-timezone: ${ANALYTICS_TIMEZONE:Asia/Shanghai}
+    dashboard-cache-ttl-seconds: ${DASHBOARD_CACHE_TTL_SECONDS:30}
+    global-search-max-results: ${GLOBAL_SEARCH_MAX_RESULTS:20}
+  job-import:
+    max-file-bytes: ${JOB_IMPORT_MAX_FILE_BYTES:5242880}
+    max-rows: ${JOB_IMPORT_MAX_ROWS:1000}
+    max-cell-length: ${JOB_IMPORT_MAX_CELL_LENGTH:20000}
+    url-max-bytes: ${JOB_URL_MAX_BYTES:2097152}
+    url-max-redirects: ${JOB_URL_MAX_REDIRECTS:3}
+  extension:
+    pairing-expiration-seconds: ${EXTENSION_PAIRING_EXPIRATION:300}
+    access-expiration-seconds: ${EXTENSION_ACCESS_EXPIRATION:900}
+    refresh-expiration-seconds: ${EXTENSION_REFRESH_EXPIRATION:604800}
+  learning:
+    minimum-sample: ${LTR_MINIMUM_SAMPLE:30}
+  automation-center:
+    enabled: ${AUTOMATION_CENTER_ENABLED:false}
+    poll-interval-ms: ${AUTOMATION_CENTER_POLL_INTERVAL_MS:60000}
+  automation:
+    enabled: ${AUTOMATION_WORKER_ENABLED:false}
+    worker-base-url: ${AUTOMATION_WORKER_BASE_URL:http://127.0.0.1:8020}
+    worker-token: ${AUTOMATION_WORKER_TOKEN:}
+    task-expiration-seconds: ${AUTOMATION_TASK_EXPIRATION:300}
+    allowed-target-hosts: ${AUTOMATION_ALLOWED_HOSTS:127.0.0.1,localhost}
+  operations:
+    milvus-host: ${MILVUS_HOST:127.0.0.1}
+    milvus-port: ${MILVUS_PORT:19531}
+    metrics-refresh-ms: ${OPERATIONS_METRICS_REFRESH_MS:30000}
+
+logging:
+  pattern:
+    console: "%d{yyyy-MM-dd'T'HH:mm:ss.SSSXXX} %-5level [%thread] [request=%X{requestTraceId:-} trace=%X{traceId:-} span=%X{spanId:-}] %logger{36} - %msg%n"
+  level:
+    root: INFO
+    com.jobpilot: INFO
+    org.springframework.security: WARN

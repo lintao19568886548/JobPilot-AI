@@ -1,0 +1,26 @@
+import { http } from './http.js'
+
+export const listQueue = (params = {}) => http.get('/v1/application-queue', { params })
+export const enqueueApplication = (payload, key = crypto.randomUUID()) => http.post('/v1/application-queue/items', payload, { headers: { 'Idempotency-Key': key } })
+export const enqueueApplications = (payload, key = crypto.randomUUID()) => http.post('/v1/application-queue/items/batch', payload, { headers: { 'Idempotency-Key': key } })
+export const updateQueueItem = (id, payload) => http.patch(`/v1/application-queue/items/${id}`, payload)
+export const removeQueueItem = (id) => http.delete(`/v1/application-queue/items/${id}`)
+export const approveQueueItem = (id, version) => http.post(`/v1/application-queue/items/${id}:approve`, { version })
+export const skipQueueItem = (id, version) => http.post(`/v1/application-queue/items/${id}:skip`, { version })
+export const prepareQueueItem = (id, version) => http.post(`/v1/application-queue/items/${id}:prepare`, { version })
+
+export const listApplications = (params = {}) => http.get('/v1/applications', { params })
+export const getApplication = (id) => http.get(`/v1/applications/${id}`)
+export const createApplication = (payload, key = crypto.randomUUID()) => http.post('/v1/applications', payload, { headers: { 'Idempotency-Key': key } })
+export const updateApplication = (id, payload) => http.patch(`/v1/applications/${id}`, payload)
+export const transitionApplication = (id, payload) => http.post(`/v1/applications/${id}/transitions`, payload)
+export const getApplicationLogs = (id) => http.get(`/v1/applications/${id}/logs`)
+export const getApplicationKpis = () => http.get('/v1/applications/kpis')
+
+export const listRecruiters = () => http.get('/v1/recruiters')
+export const createRecruiter = (payload) => http.post('/v1/recruiters', payload)
+export const getRecruiter = (id) => http.get(`/v1/recruiters/${id}`)
+export const updateRecruiter = (id, payload) => http.patch(`/v1/recruiters/${id}`, payload)
+export const addRecruiterInteraction = (id, payload) => http.post(`/v1/recruiters/${id}/interactions`, payload)
+export const getPlatformPolicy = (platform) => http.get(`/v1/platform-policies/${encodeURIComponent(platform)}`)
+export const configurePlatformPolicy = (platform, payload) => http.put(`/v1/platform-policies/${encodeURIComponent(platform)}`, payload)

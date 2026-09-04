@@ -1,0 +1,1 @@
+package com.jobpilot.automation.mapper;import com.baomidou.mybatisplus.core.mapper.BaseMapper;import com.jobpilot.automation.domain.SafeAutomationTaskEntity;public interface SafeAutomationTaskMapper extends BaseMapper<SafeAutomationTaskEntity>{}

@@ -1,0 +1,9 @@
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Generated outputs, local secrets and dependency caches are outside the source scan"
+paths = [
+  '''(^|[\\/])\.env([\\/]|$)''',
+  '''(^|[\\/])(backups|reports|runtime|target|node_modules|\.venv)([\\/]|$)'''
+]

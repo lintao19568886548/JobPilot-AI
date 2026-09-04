@@ -1,0 +1,25 @@
+server:
+  address: 0.0.0.0
+  error:
+    include-message: never
+    include-binding-errors: never
+    include-stacktrace: never
+    include-exception: false
+  shutdown: graceful
+
+spring:
+  lifecycle:
+    timeout-per-shutdown-phase: 30s
+
+management:
+  tracing:
+    export:
+      otlp:
+        enabled: ${OTEL_EXPORTER_OTLP_ENABLED:false}
+  endpoint:
+    health:
+      show-details: never
+
+logging:
+  file:
+    name: ""

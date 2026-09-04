@@ -1,0 +1,1 @@
+package com.jobpilot.automation.mapper;import com.baomidou.mybatisplus.core.mapper.BaseMapper;import com.jobpilot.automation.domain.AutomationRuleEntity;public interface AutomationRuleMapper extends BaseMapper<AutomationRuleEntity>{}

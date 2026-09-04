@@ -1,0 +1,124 @@
+services:
+  backend:
+    image: jobpilot/backend:${JOBPILOT_RELEASE_VERSION:-0.14.0}
+    build:
+      context: .
+      dockerfile: deploy/backend/Dockerfile
+    restart: unless-stopped
+    environment:
+      SPRING_PROFILES_ACTIVE: production
+      SERVER_ADDRESS: 0.0.0.0
+      MYSQL_HOST: mysql
+      MYSQL_PORT: 3306
+      MYSQL_DATABASE: ${MYSQL_DATABASE:?MYSQL_DATABASE is required}
+      MYSQL_USERNAME: ${MYSQL_USERNAME:?MYSQL_USERNAME is required}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:?MYSQL_PASSWORD is required}
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      JWT_SECRET: ${JWT_SECRET:?JWT_SECRET is required}
+      JWT_ACCESS_EXPIRATION: ${JWT_ACCESS_EXPIRATION:-900}
+      JWT_REFRESH_EXPIRATION: ${JWT_REFRESH_EXPIRATION:-604800}
+      BOOTSTRAP_USER_ENABLED: "false"
+      FRONTEND_ORIGINS: http://127.0.0.1:${JOBPILOT_GATEWAY_PORT:-8180},http://localhost:${JOBPILOT_GATEWAY_PORT:-8180}
+      AI_SERVICE_BASE_URL: http://ai-service:8010
+      AI_SERVICE_INTERNAL_TOKEN: ${AI_SERVICE_INTERNAL_TOKEN:-}
+      MILVUS_HOST: milvus
+      MILVUS_PORT: 19530
+      OTEL_EXPORTER_OTLP_ENABLED: "false"
+    ports:
+      - "127.0.0.1:${BACKEND_PORT:-8088}:8088"
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      ai-service:
+        condition: service_healthy
+    read_only: true
+    tmpfs:
+      - /tmp:size=128m,mode=1777
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    healthcheck:
+      test: [CMD-SHELL, "wget -q -O - http://127.0.0.1:8088/actuator/health | grep -q '\"status\":\"UP\"'"]
+      interval: 10s
+      timeout: 5s
+      retries: 30
+      start_period: 30s
+    logging:
+      driver: json-file
+      options: {max-size: 10m, max-file: "3"}
+    networks: [jobpilot]
+
+  ai-service:
+    image: jobpilot/ai-service:${JOBPILOT_RELEASE_VERSION:-0.14.0}
+    build:
+      context: .
+      dockerfile: deploy/ai-service/Dockerfile
+    restart: unless-stopped
+    environment:
+      AI_SERVICE_INTERNAL_TOKEN: ${AI_SERVICE_INTERNAL_TOKEN:-}
+      JOB_PARSER_MODE: ${JOB_PARSER_MODE:-RULES_ONLY}
+      LLM_BASE_URL: ${LLM_BASE_URL:-}
+      LLM_API_KEY: ${LLM_API_KEY:-}
+      LLM_MODEL: ${LLM_MODEL:-}
+      LLM_TIMEOUT_SECONDS: ${LLM_TIMEOUT_SECONDS:-30}
+      LLM_MAX_RETRIES: ${LLM_MAX_RETRIES:-2}
+      LLM_CIRCUIT_FAILURE_THRESHOLD: ${LLM_CIRCUIT_FAILURE_THRESHOLD:-3}
+      LLM_CIRCUIT_RESET_SECONDS: ${LLM_CIRCUIT_RESET_SECONDS:-60}
+      LLM_MAX_CONCURRENCY: ${LLM_MAX_CONCURRENCY:-2}
+      MILVUS_URI: http://milvus:19530
+      MILVUS_COLLECTION: ${MILVUS_COLLECTION:-jobpilot_embeddings_bge_m3_v1}
+      HF_HOME: /models/huggingface
+    ports:
+      - "127.0.0.1:${AI_SERVICE_PORT:-8010}:8010"
+    depends_on:
+      milvus:
+        condition: service_healthy
+    volumes:
+      - jobpilot_huggingface_cache:/models/huggingface
+    read_only: true
+    tmpfs:
+      - /tmp:size=256m,mode=1777
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    healthcheck:
+      test: [CMD, python, -c, "import json,urllib.request; assert json.load(urllib.request.urlopen('http://127.0.0.1:8010/internal/v1/readiness', timeout=3))['status']=='READY'"]
+      interval: 10s
+      timeout: 5s
+      retries: 30
+      start_period: 20s
+    logging:
+      driver: json-file
+      options: {max-size: 10m, max-file: "3"}
+    networks: [jobpilot]
+
+  frontend:
+    image: jobpilot/frontend:${JOBPILOT_RELEASE_VERSION:-0.14.0}
+    build:
+      context: .
+      dockerfile: deploy/frontend/Dockerfile
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:${JOBPILOT_GATEWAY_PORT:-8180}:8080"
+    depends_on:
+      backend:
+        condition: service_healthy
+    read_only: true
+    tmpfs:
+      - /tmp:size=32m,mode=1777
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    healthcheck:
+      test: [CMD-SHELL, "wget -q -O - http://127.0.0.1:8080/ | grep -q 'JobPilot AI'"]
+      interval: 10s
+      timeout: 5s
+      retries: 20
+      start_period: 10s
+    logging:
+      driver: json-file
+      options: {max-size: 10m, max-file: "3"}
+    networks: [jobpilot]
+
+volumes:
+  jobpilot_huggingface_cache:

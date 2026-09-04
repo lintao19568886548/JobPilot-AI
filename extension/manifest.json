@@ -1,0 +1,18 @@
+{
+  "manifest_version": 3,
+  "name": "JobPilot AI 申请助手",
+  "description": "仅在用户主动触发后读取当前岗位页的可见内容，并在 JobPilot 中审核。",
+  "version": "0.1.2",
+  "minimum_chrome_version": "116",
+  "permissions": ["activeTab", "scripting", "storage", "sidePanel"],
+  "host_permissions": ["http://127.0.0.1:8088/*"],
+  "background": { "service_worker": "service-worker.js" },
+  "action": {
+    "default_title": "打开 JobPilot AI",
+    "default_popup": "sidepanel.html"
+  },
+  "side_panel": { "default_path": "sidepanel.html" },
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; object-src 'self'"
+  }
+}

@@ -1,0 +1,64 @@
+# Secrets and local environment
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# Java
+backend/target/
+*.class
+*.log
+
+# Node
+frontend/node_modules/
+frontend/dist/
+frontend/.vite/
+extension/node_modules/
+extension/dist/
+automation-worker/node_modules/
+automation-worker/dist/
+npm-debug.log*
+
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.venv/
+ai-service/.venv/
+ai-service/vendor/
+
+# Runtime and local data
+logs/
+runtime/
+data/
+backups/
+reports/
+releases/
+restore-drill-*/
+uploads/
+recordings/
+*.wav
+*.mp3
+*.m4a
+*.webm
+*.mp4
+*.pid
+
+# IDE / OS
+.idea/
+.vscode/
+*.iml
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Test reports
+coverage/
+test-results/
+phase1-report.json
+scripts/.phase*-smoke-state.json
+.dependency-check-data/
+.trivy-cache/

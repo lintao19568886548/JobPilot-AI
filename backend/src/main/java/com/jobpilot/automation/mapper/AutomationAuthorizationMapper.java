@@ -1,0 +1,1 @@
+package com.jobpilot.automation.mapper;import com.baomidou.mybatisplus.core.mapper.BaseMapper;import com.jobpilot.automation.domain.AutomationAuthorizationEntity;public interface AutomationAuthorizationMapper extends BaseMapper<AutomationAuthorizationEntity>{}

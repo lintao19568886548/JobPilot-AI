@@ -1,0 +1,4 @@
+title,companyName,city,salaryText,description,platform,platformJobId
+CSV Java Engineer,DEMO CSV Company,Shanghai,18-28K·13薪,必须熟悉 Java 和 Spring Boot；Redis 优先,DEMO_CSV,csv-valid-1
+,DEMO CSV Company,Shanghai,15-20K,缺少岗位名称,DEMO_CSV,csv-invalid-1
+CSV AI Engineer,DEMO AI Company,Hangzhou,25-35K·14薪,要求熟悉 Python 和 LangGraph；RAG 经验优先,DEMO_CSV,csv-valid-2

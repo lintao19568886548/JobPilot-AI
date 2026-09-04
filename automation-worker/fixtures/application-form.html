@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><title>JobPilot Safe Assist Fixture</title></head>
+<body>
+  <main>
+    <h1>Safe application fixture</h1>
+    <form id="application-form">
+      <label>Name <input id="jp-name" autocomplete="off"></label>
+      <label>Email <input id="jp-email" type="email" autocomplete="off"></label>
+      <label>Phone <input id="jp-phone" autocomplete="off"></label>
+      <label>Summary <textarea id="jp-summary"></textarea></label>
+      <button id="submit-application" type="submit">Submit application</button>
+    </form>
+    <output id="submit-count">0</output>
+  </main>
+  <script>
+    let count = 0
+    document.querySelector('#application-form').addEventListener('submit', (event) => {
+      event.preventDefault(); count += 1; document.querySelector('#submit-count').textContent = String(count)
+    })
+  </script>
+</body>
+</html>

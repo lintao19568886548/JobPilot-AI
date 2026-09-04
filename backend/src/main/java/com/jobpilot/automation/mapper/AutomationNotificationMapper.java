@@ -1,0 +1,1 @@
+package com.jobpilot.automation.mapper;import com.baomidou.mybatisplus.core.mapper.BaseMapper;import com.jobpilot.automation.domain.AutomationNotificationEntity;public interface AutomationNotificationMapper extends BaseMapper<AutomationNotificationEntity>{}
